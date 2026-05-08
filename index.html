@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحدي نادي اقرأ</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a28;
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --gold-dim: #8a6c30;
+    --cream: #f5efe0;
+    --text: #e8dcc8;
+    --muted: #7a6f5e;
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --border: rgba(201,168,76,0.2);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,168,76,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(100,60,200,0.08) 0%, transparent 50%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* ========== STARS ========== */
+  .stars {
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    overflow:hidden;
+  }
+  .star {
+    position:absolute;
+    border-radius:50%;
+    background:var(--gold-light);
+    animation: twinkle var(--d,3s) ease-in-out infinite var(--delay,0s);
+  }
+  @keyframes twinkle {
+    0%,100%{opacity:.1;transform:scale(1)}
+    50%{opacity:.8;transform:scale(1.3)}
+  }
+
+  /* ========== LOGO HEADER ========== */
+  .site-header {
+    position:relative;z-index:10;
+    display:flex;flex-direction:column;align-items:center;
+    padding:40px 20px 20px;
+    gap:10px;
+  }
+  .logo-wrap {
+    width:100px;height:100px;border-radius:50%;
+    border:3px solid var(--gold);
+    box-shadow:0 0 30px rgba(201,168,76,0.4),0 0 60px rgba(201,168,76,0.15);
+    overflow:hidden;
+    animation: logoFloat 4s ease-in-out infinite;
+  }
+  @keyframes logoFloat {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+  }
+  .logo-wrap img { width:100%;height:100%;object-fit:cover; }
+  .site-title {
+    font-family:'Amiri',serif;
+    font-size:clamp(1.8rem,5vw,3rem);
+    color:var(--gold);
+    text-shadow:0 0 20px rgba(201,168,76,0.5);
+    letter-spacing:3px;
+  }
+  .site-subtitle {
+    font-size:.9rem;color:var(--muted);letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .divider {
+    width:200px;height:1px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    margin:4px auto;
+  }
+
+  /* ========== SCREENS ========== */
+  .screen {
+    position:relative;z-index:10;
+    max-width:700px;margin:0 auto;
+    padding:20px;
+    display:none;
+    animation: fadeIn .5s ease;
+  }
+  .screen.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ========== START SCREEN ========== */
+  .start-card {
+    background: var(--card);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:40px 30px;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .start-card h2 {
+    font-family:'Amiri',serif;
+    font-size:2rem;color:var(--gold);
+    margin-bottom:16px;
+  }
+  .start-card p {
+    color:var(--muted);line-height:1.9;font-size:1.05rem;
+    margin-bottom:30px;
+  }
+  .rules-grid {
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:12px;margin-bottom:30px;
+  }
+  .rule-item {
+    background:rgba(201,168,76,0.07);
+    border:1px solid var(--border);
+    border-radius:12px;padding:14px;
+    font-size:.9rem;color:var(--text);
+  }
+  .rule-item .icon { font-size:1.5rem;display:block;margin-bottom:6px; }
+
+  .btn-primary {
+    background:linear-gradient(135deg,var(--gold),var(--gold-dim));
+    color:#000;
+    border:none;padding:16px 50px;
+    border-radius:50px;font-size:1.1rem;font-weight:700;
+    font-family:'Tajawal',sans-serif;
+    cursor:pointer;
+    transition:all .3s;
+    box-shadow:0 8px 30px rgba(201,168,76,0.35);
+    letter-spacing:1px;
+  }
+  .btn-primary:hover {
+    transform:translateY(-3px);
+    box-shadow:0 12px 40px rgba(201,168,76,0.5);
+  }
+  .btn-primary:disabled {
+    opacity:.5;cursor:not-allowed;transform:none;
+  }
+
+  /* ========== LOADING ========== */
+  .loading-screen {
+    text-align:center;padding:60px 20px;
+  }
+  .loader-ring {
+    width:80px;height:80px;
+    border:4px solid rgba(201,168,76,0.15);
+    border-top:4px solid var(--gold);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:0 auto 24px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-text {
+    font-family:'Amiri',serif;
+    font-size:1.4rem;color:var(--gold);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+  .loading-sub{color:var(--muted);margin-top:8px;font-size:.9rem;}
+
+  /* ========== QUIZ SCREEN ========== */
+  .quiz-header {
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:20px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;padding:14px 20px;
+  }
+  .q-counter {
+    font-family:'Amiri',serif;
+    font-size:1.1rem;color:var(--gold);
+  }
+  .score-badge {
+    background:rgba(201,168,76,0.15);
+    border:1px solid var(--gold-dim);
+    border-radius:20px;padding:4px 16px;
+    font-size:.9rem;color:var(--gold-light);
+  }
+
+  /* TIMER */
+  .timer-wrap {
+    margin-bottom:20px;
+    position:relative;
+  }
+  .timer-bar-bg {
+    height:8px;background:rgba(255,255,255,0.07);
+    border-radius:4px;overflow:hidden;
+  }
+  .timer-bar {
+    height:100%;
+    background:linear-gradient(90deg,var(--green),var(--gold));
+    border-radius:4px;
+    transition:width 1s linear, background .5s;
+    width:100%;
+  }
+  .timer-bar.warning {
+    background:linear-gradient(90deg,var(--red),#ff6b35);
+  }
+  .timer-num {
+    position:absolute;left:50%;top:-28px;
+    transform:translateX(-50%);
+    font-size:1.5rem;font-weight:700;
+    color:var(--gold);
+    font-family:'Amiri',serif;
+    min-width:32px;text-align:center;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;padding:28px 24px;
+    margin-bottom:20px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.3);
+    position:relative;overflow:hidden;
+  }
+  .question-card::before {
+    content:'';position:absolute;top:0;right:0;
+    width:120px;height:120px;
+    background:radial-gradient(circle,rgba(201,168,76,0.08),transparent 70%);
+    pointer-events:none;
+  }
+  .q-category {
+    display:inline-block;
+    background:rgba(201,168,76,0.12);
+    border:1px solid var(--gold-dim);
+    color:var(--gold);border-radius:20px;
+    padding:3px 14px;font-size:.8rem;
+    margin-bottom:14px;
+  }
+  .q-text {
+    font-family:'Amiri',serif;
+    font-size:clamp(1.1rem,3vw,1.4rem);
+    line-height:1.8;color:var(--cream);
+  }
+
+  /* OPTIONS */
+  .options-grid {
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  @media(max-width:500px){.options-grid{grid-template-columns:1fr;}}
+  .option-btn {
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:14px;padding:16px;
+    color:var(--text);font-family:'Tajawal',sans-serif;
+    font-size:1rem;cursor:pointer;
+    text-align:right;
+    transition:all .25s;
+    line-height:1.5;
+  }
+  .option-btn:hover:not(:disabled) {
+    background:rgba(201,168,76,0.1);
+    border-color:var(--gold-dim);
+    transform:translateY(-2px);
+  }
+  .option-btn.correct {
+    background:rgba(46,204,113,0.2)!important;
+    border-color:var(--green)!important;
+    color:var(--green)!important;
+  }
+  .option-btn.wrong {
+    background:rgba(231,76,60,0.2)!important;
+    border-color:var(--red)!important;
+    color:var(--red)!important;
+  }
+  .option-btn:disabled { cursor:default; }
+
+  /* FEEDBACK */
+  .feedback-msg {
+    text-align:center;padding:12px;
+    border-radius:10px;margin-top:14px;
+    font-weight:700;font-size:1rem;
+    opacity:0;transition:opacity .3s;
+  }
+  .feedback-msg.show{opacity:1;}
+  .feedback-msg.correct-fb{background:rgba(46,204,113,0.15);color:var(--green);}
+  .feedback-msg.wrong-fb{background:rgba(231,76,60,0.15);color:var(--red);}
+
+  /* ========== PROGRESS DOTS ========== */
+  .progress-dots {
+    display:flex;justify-content:center;
+    gap:6px;margin-top:20px;flex-wrap:wrap;
+  }
+  .dot {
+    width:12px;height:12px;border-radius:50%;
+    background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.15);
+    transition:all .3s;
+  }
+  .dot.answered-correct{background:var(--green);border-color:var(--green);}
+  .dot.answered-wrong{background:var(--red);border-color:var(--red);}
+  .dot.current{background:var(--gold);border-color:var(--gold);transform:scale(1.3);}
+
+  /* ========== RESULT SCREEN ========== */
+  .result-screen { text-align:center; }
+
+  /* FAILURE */
+  .fail-card {
+    background:var(--card);
+    border:1px solid rgba(231,76,60,0.3);
+    border-radius:24px;padding:50px 30px;
+    box-shadow:0 20px 60px rgba(231,76,60,0.1);
+  }
+  .fail-icon { font-size:4rem;margin-bottom:16px; }
+  .fail-card h2 {
+    font-family:'Amiri',serif;
+    font-size:2rem;color:var(--red);margin-bottom:12px;
+  }
+  .fail-card p{color:var(--muted);line-height:1.8;margin-bottom:8px;}
+  .score-display {
+    font-size:3rem;font-weight:900;color:var(--gold);
+    font-family:'Amiri',serif;margin:16px 0;
+  }
+  .btn-retry {
+    background:transparent;
+    border:2px solid var(--gold-dim);
+    color:var(--gold);
+    border-radius:50px;padding:12px 40px;
+    font-family:'Tajawal',sans-serif;
+    font-size:1rem;cursor:pointer;
+    margin-top:20px;transition:all .3s;
+  }
+  .btn-retry:hover{background:rgba(201,168,76,0.1);}
+
+  /* SUCCESS / NFC CARD */
+  .success-card {
+    background:var(--card);
+    border:1px solid rgba(201,168,76,0.35);
+    border-radius:24px;padding:40px 24px 50px;
+    box-shadow:0 20px 80px rgba(201,168,76,0.2);
+    position:relative;overflow:hidden;
+  }
+  .success-card::before {
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,168,76,0.08),transparent 60%);
+    pointer-events:none;
+  }
+  .success-title {
+    font-family:'Amiri',serif;
+    font-size:clamp(1.6rem,4vw,2.5rem);
+    color:var(--gold);margin-bottom:6px;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%,100%{text-shadow:0 0 10px rgba(201,168,76,0.4)}
+    50%{text-shadow:0 0 30px rgba(201,168,76,0.9),0 0 60px rgba(201,168,76,0.4)}
+  }
+  .success-sub{color:var(--muted);margin-bottom:30px;}
+  .score-big {
+    font-size:4rem;font-weight:900;
+    color:var(--gold-light);
+    font-family:'Amiri',serif;
+    text-shadow:0 0 20px rgba(240,208,128,0.5);
+  }
+  .score-label{color:var(--muted);margin-bottom:30px;font-size:.95rem;}
+
+  /* 3D NFC CARD */
+  .nfc-scene {
+    width:320px;height:200px;
+    margin:0 auto 30px;
+    perspective:800px;
+  }
+  .nfc-card-3d {
+    width:100%;height:100%;
+    transform-style:preserve-3d;
+    animation: rotateSlow 6s ease-in-out infinite;
+    position:relative;
+  }
+  @keyframes rotateSlow {
+    0%{transform:rotateY(-25deg) rotateX(10deg)}
+    50%{transform:rotateY(25deg) rotateX(-5deg)}
+    100%{transform:rotateY(-25deg) rotateX(10deg)}
+  }
+  .nfc-face {
+    position:absolute;inset:0;
+    backface-visibility:hidden;
+    border-radius:18px;
+    display:flex;flex-direction:column;
+    justify-content:center;align-items:center;
+    padding:20px;
+    box-shadow:
+      0 25px 50px rgba(0,0,0,0.6),
+      0 0 0 1px rgba(201,168,76,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.15),
+      0 0 40px rgba(201,168,76,0.15);
+  }
+  .nfc-front {
+    background:linear-gradient(135deg,#1c1a12 0%,#2a2610 30%,#1a1a28 60%,#0e0e18 100%);
+  }
+  .nfc-front::before {
+    content:'';position:absolute;
+    top:-50%;left:-50%;width:200%;height:200%;
+    background:conic-gradient(from 0deg,transparent 0%,rgba(201,168,76,0.05) 20%,transparent 40%,rgba(201,168,76,0.08) 60%,transparent 80%);
+    animation:rotateBg 8s linear infinite;
+  }
+  @keyframes rotateBg{to{transform:rotate(360deg)}}
+  .nfc-logo-small {
+    width:50px;height:50px;border-radius:50%;
+    border:2px solid var(--gold);
+    overflow:hidden;margin-bottom:10px;
+    position:relative;z-index:1;
+  }
+  .nfc-logo-small img{width:100%;height:100%;object-fit:cover;}
+  .nfc-card-title {
+    font-family:'Amiri',serif;
+    color:var(--gold);font-size:1.1rem;
+    position:relative;z-index:1;
+    text-shadow:0 0 15px rgba(201,168,76,0.7);
+  }
+  .nfc-card-sub {
+    color:var(--muted);font-size:.7rem;
+    position:relative;z-index:1;
+    letter-spacing:2px;text-transform:uppercase;
+  }
+  .nfc-chip {
+    position:absolute;top:16px;right:20px;
+    width:36px;height:28px;
+    background:linear-gradient(135deg,#b8960a,#f0d060,#b8960a);
+    border-radius:5px;
+    z-index:1;
+    box-shadow:0 2px 8px rgba(0,0,0,0.5);
+  }
+  .nfc-chip::after {
+    content:'';position:absolute;inset:4px;
+    border:1px solid rgba(0,0,0,0.3);
+    border-radius:3px;
+  }
+  .nfc-wave {
+    position:absolute;bottom:16px;left:20px;
+    color:var(--gold-dim);font-size:1.2rem;
+    z-index:1;
+    animation:wavePulse 2s ease-in-out infinite;
+  }
+  @keyframes wavePulse{0%,100%{opacity:.5}50%{opacity:1}}
+  .nfc-stars-deco {
+    position:absolute;bottom:16px;right:16px;
+    font-size:.7rem;color:var(--gold-dim);
+    z-index:1;letter-spacing:1px;
+  }
+
+  /* CONFETTI */
+  .confetti-container {
+    position:fixed;inset:0;pointer-events:none;z-index:100;
+    overflow:hidden;
+  }
+  .confetti-piece {
+    position:absolute;
+    width:10px;height:10px;
+    animation:confettiFall var(--fall-d,3s) var(--fall-delay,0s) ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+    100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+  }
+
+  .claim-btn {
+    background:linear-gradient(135deg,var(--gold),#e8a000);
+    color:#000;border:none;
+    padding:18px 50px;border-radius:50px;
+    font-size:1.2rem;font-weight:900;
+    font-family:'Tajawal',sans-serif;
+    cursor:pointer;
+    letter-spacing:1px;
+    box-shadow:0 10px 40px rgba(201,168,76,0.5);
+    transition:all .3s;
+    animation:claimPulse 2s ease-in-out infinite;
+    margin-top:10px;
+  }
+  @keyframes claimPulse{
+    0%,100%{box-shadow:0 10px 40px rgba(201,168,76,0.4)}
+    50%{box-shadow:0 10px 60px rgba(201,168,76,0.8),0 0 80px rgba(201,168,76,0.3)}
+  }
+  .claim-btn:hover{transform:scale(1.05);}
+
+  /* ERROR BANNER */
+  .error-banner {
+    background:rgba(231,76,60,0.15);
+    border:1px solid rgba(231,76,60,0.3);
+    border-radius:12px;padding:16px;
+    margin-bottom:16px;
+    color:var(--red);font-size:.9rem;
+    text-align:center;display:none;
+  }
+
+  /* PARTICLES GLOW */
+  .glow-orb {
+    position:fixed;border-radius:50%;
+    filter:blur(80px);pointer-events:none;z-index:0;
+    opacity:.3;
+  }
+  .orb1{width:400px;height:400px;background:rgba(201,168,76,0.15);top:-100px;right:-100px;}
+  .orb2{width:300px;height:300px;background:rgba(100,60,200,0.1);bottom:-80px;left:-80px;}
+
+  /* ========== RESPONSIVE ========== */
+  @media(max-width:480px){
+    .rules-grid{grid-template-columns:1fr;}
+    .nfc-scene{width:280px;height:175px;}
+    .site-header{padding:24px 16px 14px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-orb orb1"></div>
+<div class="glow-orb orb2"></div>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- Confetti container -->
+<div class="confetti-container" id="confetti"></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo-wrap">
+    <img src="https://i.postimg.cc/XYbLq3Pt/aqra.jpg" alt="نادي اقرأ" onerror="this.style.background='var(--gold)';this.alt='A'">
+  </div>
+  <div class="site-title">نَادِي اقْرَأ</div>
+  <div class="divider"></div>
+  <div class="site-subtitle">READING CLUB · تحدي المعلومات</div>
+</header>
+
+<!-- ===== SCREEN: START ===== -->
+<div class="screen active" id="startScreen">
+  <div class="start-card">
+    <h2>🏆 تحدي نادي اقرأ</h2>
+    <p>اختبر معلوماتك في عالم الكتب والروايات والقصص القرآنية!<br>
+    أجب عن 15 سؤالاً متنوعاً لتفوز ببطاقة NFC الذهبية.</p>
+    <div class="rules-grid">
+      <div class="rule-item"><span class="icon">📚</span>15 سؤالاً فريداً</div>
+      <div class="rule-item"><span class="icon">⏱️</span>15 ثانية لكل سؤال</div>
+      <div class="rule-item"><span class="icon">🎯</span>اجتز 70% للفوز</div>
+      <div class="rule-item"><span class="icon">🎴</span>بطاقة NFC كجائزة</div>
+    </div>
+    <div class="error-banner" id="startError">حدث خطأ في تحميل الأسئلة. جاري المحاولة مرة أخرى...</div>
+    <button class="btn-primary" id="startBtn" onclick="startQuiz()">🚀 ابدأ التحدي</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: LOADING ===== -->
+<div class="screen" id="loadingScreen">
+  <div class="loading-screen">
+    <div class="loader-ring"></div>
+    <div class="loading-text">جاري تحضير الأسئلة...</div>
+    <div class="loading-sub">يتم توليد أسئلة حصرية لك</div>
+  </div>
+</div>
+
+<!-- ===== SCREEN: QUIZ ===== -->
+<div class="screen" id="quizScreen">
+  <div class="quiz-header">
+    <div class="q-counter" id="qCounter">السؤال 1 / 15</div>
+    <div class="score-badge" id="scoreBadge">النتيجة: 0</div>
+  </div>
+
+  <div class="timer-wrap">
+    <div class="timer-num" id="timerNum">15</div>
+    <div class="timer-bar-bg"><div class="timer-bar" id="timerBar"></div></div>
+  </div>
+
+  <div class="question-card">
+    <span class="q-category" id="qCategory">📖 كتب</span>
+    <div class="q-text" id="qText">نص السؤال هنا</div>
+  </div>
+
+  <div class="options-grid" id="optionsGrid"></div>
+  <div class="feedback-msg" id="feedbackMsg"></div>
+
+  <div class="progress-dots" id="progressDots"></div>
+</div>
+
+<!-- ===== SCREEN: RESULT ===== -->
+<div class="screen" id="resultScreen">
+  <!-- fail or success injected dynamically -->
+</div>
+
+<script>
+// ============ STARS ============
+(function(){
+  const container = document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    const size = Math.random()*3+1;
+    s.style.cssText=`
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;top:${Math.random()*100}%;
+      --d:${Math.random()*4+2}s;
+      --delay:${Math.random()*5}s;
+    `;
+    container.appendChild(s);
+  }
+})();
+
+// ============ STATE ============
+let questions = [];
+let current = 0;
+let score = 0;
+let timerInterval = null;
+let timeLeft = 15;
+let answered = false;
+let dotStates = [];
+
+// ============ SEEN QUESTIONS ============
+function getSeenQuestions(){
+  try{ return JSON.parse(localStorage.getItem('aqra_seen')||'[]'); }catch(e){ return []; }
+}
+function addSeenQuestions(qs){
+  const seen = getSeenQuestions();
+  const newSeen = [...seen, ...qs];
+  // keep last 150
+  const trimmed = newSeen.slice(-150);
+  try{ localStorage.setItem('aqra_seen', JSON.stringify(trimmed)); }catch(e){}
+}
+
+// ============ FETCH QUESTIONS via Anthropic API ============
+async function fetchQuestions(){
+  const seen = getSeenQuestions();
+  const seenHint = seen.length > 0
+    ? `\nتجنب هذه الأسئلة التي سبق طرحها (استخدمها كمرجع فقط): ${seen.slice(-40).join(' | ')}`
+    : '';
+
+  const prompt = `أنت خبير في نادي اقرأ. قم بتوليد 15 سؤالاً متعدد الخيارات عن الكتب والروايات والقصص والقرآن الكريم والأدب العربي والعالمي.
+الشروط:
+- كل سؤال يجب أن يكون مختلفاً تماماً وجديداً وغير مكرر
+- 4 خيارات لكل سؤال (a,b,c,d)
+- إجابة صحيحة واحدة فقط
+- تنوع في الفئات: روايات عربية، روايات عالمية، قرآن كريم، شعر، سير ذاتية، تاريخ الأدب
+- الأسئلة باللغة العربية الفصحى
+${seenHint}
+
+أعد الرد بـ JSON فقط بهذا الشكل بالضبط بدون أي نص إضافي:
+[
+  {
+    "category": "فئة السؤال",
+    "question": "نص السؤال",
+    "options": ["الخيار أ","الخيار ب","الخيار ج","الخيار د"],
+    "answer": 0
+  }
+]
+حيث answer هو رقم الخيار الصحيح (0-3).`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if(!response.ok) throw new Error('API error: ' + response.status);
+  const data = await response.json();
+  const text = data.content.map(b => b.text||'').join('');
+  const clean = text.replace(/```json|```/g,'').trim();
+  const parsed = JSON.parse(clean);
+  if(!Array.isArray(parsed) || parsed.length < 5) throw new Error('Invalid questions');
+  return parsed.slice(0,15);
+}
+
+// ============ START ============
+async function startQuiz(){
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('startError').style.display='none';
+  showScreen('loadingScreen');
+
+  try {
+    questions = await fetchQuestions();
+    current = 0;
+    score = 0;
+    dotStates = new Array(questions.length).fill('');
+    showScreen('quizScreen');
+    buildDots();
+    showQuestion();
+  } catch(err){
+    showScreen('startScreen');
+    document.getElementById('startError').style.display='block';
+    document.getElementById('startBtn').disabled = false;
+    console.error(err);
+  }
+}
+
+// ============ QUESTION ============
+function showQuestion(){
+  if(current >= questions.length){ endQuiz(); return; }
+
+  const q = questions[current];
+  answered = false;
+
+  document.getElementById('qCounter').textContent = `السؤال ${current+1} / ${questions.length}`;
+  document.getElementById('scoreBadge').textContent = `النتيجة: ${score}`;
+  document.getElementById('qCategory').textContent = getCategoryIcon(q.category) + ' ' + q.category;
+  document.getElementById('qText').textContent = q.question;
+
+  // Options
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i, q.answer);
+    grid.appendChild(btn);
+  });
+
+  // Feedback
+  const fb = document.getElementById('feedbackMsg');
+  fb.className = 'feedback-msg';
+  fb.textContent = '';
+
+  // Update dots
+  updateDot(current, 'current');
+
+  // Timer
+  startTimer();
+}
+
+function getCategoryIcon(cat){
+  if(!cat) return '📖';
+  if(cat.includes('قرآن')) return '🕌';
+  if(cat.includes('رواية') || cat.includes('روايات')) return '📚';
+  if(cat.includes('شعر')) return '✍️';
+  if(cat.includes('تاريخ')) return '🏛️';
+  if(cat.includes('سيرة') || cat.includes('سير')) return '👤';
+  return '📖';
+}
+
+// ============ TIMER ============
+function startTimer(){
+  clearInterval(timerInterval);
+  timeLeft = 15;
+  updateTimerUI();
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+    if(timeLeft <= 0){
+      clearInterval(timerInterval);
+      if(!answered) timeOut();
+    }
+  }, 1000);
+}
+
+function updateTimerUI(){
+  document.getElementById('timerNum').textContent = timeLeft;
+  const pct = (timeLeft/15)*100;
+  const bar = document.getElementById('timerBar');
+  bar.style.width = pct + '%';
+  if(timeLeft <= 5) bar.classList.add('warning');
+  else bar.classList.remove('warning');
+}
+
+function timeOut(){
+  answered = true;
+  const q = questions[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  btns[q.answer].classList.add('correct');
+  showFeedback(false, 'انتهى الوقت! ⏰ الإجابة الصحيحة: ' + q.options[q.answer]);
+  dotStates[current] = 'answered-wrong';
+  updateDot(current, 'answered-wrong');
+  setTimeout(nextQuestion, 1800);
+}
+
+// ============ SELECT ANSWER ============
+function selectAnswer(idx, correctIdx){
+  if(answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+
+  if(idx === correctIdx){
+    btns[idx].classList.add('correct');
+    score++;
+    showFeedback(true, '✅ إجابة صحيحة! ممتاز!');
+    dotStates[current] = 'answered-correct';
+    updateDot(current, 'answered-correct');
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[correctIdx].classList.add('correct');
+    showFeedback(false, '❌ إجابة خاطئة. الصحيحة: ' + questions[current].options[correctIdx]);
+    dotStates[current] = 'answered-wrong';
+    updateDot(current, 'answered-wrong');
+  }
+
+  setTimeout(nextQuestion, 1800);
+}
+
+function showFeedback(correct, msg){
+  const fb = document.getElementById('feedbackMsg');
+  fb.className = 'feedback-msg show ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.textContent = msg;
+}
+
+function nextQuestion(){
+  current++;
+  if(current >= questions.length) endQuiz();
+  else showQuestion();
+}
+
+// ============ DOTS ============
+function buildDots(){
+  const cont = document.getElementById('progressDots');
+  cont.innerHTML='';
+  for(let i=0;i<questions.length;i++){
+    const d = document.createElement('div');
+    d.className='dot';
+    d.id='dot'+i;
+    cont.appendChild(d);
+  }
+}
+function updateDot(i, state){
+  const d = document.getElementById('dot'+i);
+  if(!d) return;
+  d.className='dot '+state;
+}
+
+// ============ END ============
+function endQuiz(){
+  clearInterval(timerInterval);
+  const pct = Math.round((score/questions.length)*100);
+  const passed = pct >= 70;
+
+  // Save seen questions
+  const qTexts = questions.map(q=>q.question);
+  addSeenQuestions(qTexts);
+
+  showScreen('resultScreen');
+
+  if(passed){
+    showSuccess(score, questions.length);
+    launchConfetti();
+  } else {
+    showFail(score, questions.length, pct);
+  }
+}
+
+// ============ SHOW SUCCESS ============
+function showSuccess(score, total){
+  const rs = document.getElementById('resultScreen');
+  rs.innerHTML = `
+    <div class="success-card">
+      <div class="success-title">🏆 مبروك! لقد فزت!</div>
+      <div class="success-sub">لقد اجتزت تحدي نادي اقرأ بنجاح</div>
+      <div class="score-big">${score}/${total}</div>
+      <div class="score-label">إجابات صحيحة</div>
+
+      <div class="nfc-scene">
+        <div class="nfc-card-3d">
+          <div class="nfc-face nfc-front">
+            <div class="nfc-chip"></div>
+            <div class="nfc-logo-small">
+              <img src="https://i.postimg.cc/XYbLq3Pt/aqra.jpg" alt="نادي اقرأ">
+            </div>
+            <div class="nfc-card-title">نادي اقرأ</div>
+            <div class="nfc-card-sub">READING CHAMPION</div>
+            <div class="nfc-wave">((•))</div>
+            <div class="nfc-stars-deco">★ ★ ★</div>
+          </div>
+        </div>
+      </div>
+
+      <p style="color:var(--muted);margin-bottom:8px;font-size:.95rem;">
+        🎴 بطاقتك الذهبية NFC جاهزة!<br>اضغط لاستلامها عبر واتساب
+      </p>
+      <button class="claim-btn" onclick="claimCard()">🎉 استلم بطاقتك الآن!</button>
+
+      <div style="margin-top:24px;">
+        <button class="btn-retry" onclick="resetQuiz()">🔄 تحدٍّ جديد</button>
+      </div>
+    </div>
+  `;
+}
+
+// ============ SHOW FAIL ============
+function showFail(score, total, pct){
+  const rs = document.getElementById('resultScreen');
+  rs.innerHTML = `
+    <div class="fail-card">
+      <div class="fail-icon">😔</div>
+      <h2>لم تجتز التحدي هذه المرة</h2>
+      <p>تحتاج إلى 70% أو أكثر للفوز بالبطاقة</p>
+      <div class="score-display">${score}/${total}</div>
+      <p style="color:var(--muted);">نسبة الإجابات الصحيحة: <strong style="color:var(--gold)">${pct}%</strong></p>
+      <p style="margin-top:12px;color:var(--muted);">📚 استمر في القراءة وحاول مجدداً!</p>
+      <button class="btn-retry" onclick="resetQuiz()">🔄 حاول مجدداً</button>
+    </div>
+  `;
+}
+
+// ============ CLAIM CARD ============
+function claimCard(){
+  const msg = encodeURIComponent('السلام عليكم 👋\nلقد ربحت التحدي 🏆\nأين بطاقتي؟ 🎴✨');
+  const phone = '962790567128';
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+// ============ CONFETTI ============
+function launchConfetti(){
+  const colors = ['#c9a84c','#f0d080','#ffffff','#2ecc71','#e8a000','#f5efe0'];
+  const container = document.getElementById('confetti');
+  container.innerHTML='';
+  for(let i=0;i<80;i++){
+    const c = document.createElement('div');
+    c.className='confetti-piece';
+    c.style.cssText=`
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>.5?'50%':'2px'};
+      --fall-d:${Math.random()*3+2}s;
+      --fall-delay:${Math.random()*2}s;
+      transform:scale(${Math.random()*.8+.5});
+    `;
+    container.appendChild(c);
+  }
+  setTimeout(()=>container.innerHTML='', 8000);
+}
+
+// ============ SCREEN HELPERS ============
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function resetQuiz(){
+  showScreen('startScreen');
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('startError').style.display='none';
+}
+</script>
+</body>
+</html>
