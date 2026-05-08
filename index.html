@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>تحدي نادي اقرأ</title>
 <link rel="apple-touch-icon" href="https://iili.io/fj31aRI.md.jpg">
 <link rel="icon" href="https://iili.io/fj31aRI.md.jpg">
@@ -23,7 +23,12 @@
     --border: rgba(201,168,76,0.2);
   }
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+  * {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color: transparent; /* إزالة التظليل الأزرق/الرمادي عند اللمس */
+  }
 
   body {
     font-family: 'Tajawal', sans-serif;
@@ -32,6 +37,7 @@
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
+    touch-action: pan-y pinch-zoom; /* يسمح بالتمرير العمودي فقط (تحسين اللمس) */
   }
 
   body::before {
@@ -94,6 +100,8 @@
     color:#000; border:none; padding:16px 50px; border-radius:50px;
     font-size:1.1rem; font-weight:700; font-family:'Tajawal',sans-serif;
     cursor:pointer; transition:all .3s; box-shadow:0 8px 30px rgba(201,168,76,0.35); letter-spacing:1px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   .btn-primary:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(201,168,76,0.5); }
   .btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; }
@@ -147,15 +155,21 @@
 
   .options-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   @media(max-width:500px){ .options-grid{grid-template-columns:1fr;} }
+
   .option-btn {
     background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
     border-radius:14px; padding:16px; color:var(--text); font-family:'Tajawal',sans-serif;
     font-size:1rem; cursor:pointer; text-align:right; transition:all .25s; line-height:1.5;
+    -webkit-tap-highlight-color: transparent;  /* إزالة تظليل اللمس */
+    touch-action: manipulation;               /* تحسين اللمس */
+    outline: none;                            /* إزالة outline عند التركيز */
   }
+  .option-btn:focus { outline: none; background: rgba(201,168,76,0.1); } /* خلفية خفيفة فقط بدون اللون الأصفر */
+  .option-btn:active { transform: scale(0.98); background: rgba(201,168,76,0.15); } /* استجابة لمس سلسة */
   .option-btn:hover:not(:disabled) { background:rgba(201,168,76,0.1); border-color:var(--gold-dim); transform:translateY(-2px); }
   .option-btn.correct { background:rgba(46,204,113,0.2)!important; border-color:var(--green)!important; color:var(--green)!important; }
   .option-btn.wrong { background:rgba(231,76,60,0.2)!important; border-color:var(--red)!important; color:var(--red)!important; }
-  .option-btn:disabled { cursor:default; }
+  .option-btn:disabled { cursor:default; opacity:0.9; transform:none; }
 
   .feedback-msg { text-align:center; padding:12px; border-radius:10px; margin-top:14px; font-weight:700; font-size:1rem; opacity:0; transition:opacity .3s; }
   .feedback-msg.show { opacity:1; }
@@ -174,7 +188,7 @@
   .fail-card h2 { font-family:'Amiri',serif; font-size:2rem; color:var(--red); margin-bottom:12px; }
   .fail-card p { color:var(--muted); line-height:1.8; margin-bottom:8px; }
   .score-display { font-size:3rem; font-weight:900; color:var(--gold); font-family:'Amiri',serif; margin:16px 0; }
-  .btn-retry { background:transparent; border:2px solid var(--gold-dim); color:var(--gold); border-radius:50px; padding:12px 40px; font-family:'Tajawal',sans-serif; font-size:1rem; cursor:pointer; margin-top:20px; transition:all .3s; }
+  .btn-retry { background:transparent; border:2px solid var(--gold-dim); color:var(--gold); border-radius:50px; padding:12px 40px; font-family:'Tajawal',sans-serif; font-size:1rem; cursor:pointer; margin-top:20px; transition:all .3s; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .btn-retry:hover { background:rgba(201,168,76,0.1); }
 
   .success-card { background:var(--card); border:1px solid rgba(201,168,76,0.35); border-radius:24px; padding:40px 24px 50px; box-shadow:0 20px 80px rgba(201,168,76,0.2); position:relative; overflow:hidden; }
@@ -212,6 +226,8 @@
     font-family:'Tajawal',sans-serif; cursor:pointer; letter-spacing:1px;
     box-shadow:0 10px 40px rgba(201,168,76,0.5); transition:all .3s;
     animation:claimPulse 2s ease-in-out infinite; margin-top:10px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   @keyframes claimPulse { 0%,100%{box-shadow:0 10px 40px rgba(201,168,76,0.4)} 50%{box-shadow:0 10px 60px rgba(201,168,76,0.8),0 0 80px rgba(201,168,76,0.3)} }
   .claim-btn:hover { transform:scale(1.05); }
@@ -226,6 +242,7 @@
     .rules-grid { grid-template-columns:1fr; }
     .nfc-scene { width:280px; height:175px; }
     .site-header { padding:24px 16px 14px; }
+    .option-btn { padding:14px; font-size:0.95rem; }
   }
 </style>
 </head>
@@ -382,7 +399,6 @@ ${seenHint}
   const data = await response.json();
   const text = data.content.map(b => b.text||'').join('');
   const clean = text.replace(/```json|```/g,'').trim();
-  // Extract JSON array
   const match = clean.match(/\[[\s\S]*\]/);
   if(!match) throw new Error('No JSON array found');
   const parsed = JSON.parse(match[0]);
@@ -400,7 +416,6 @@ async function startQuiz(){
     questions = await fetchQuestions();
   } catch(err){
     console.warn('API failed, using fallback questions:', err);
-    // Shuffle fallback questions for variety
     questions = getFallbackQuestions().sort(() => Math.random() - 0.5);
   }
 
@@ -414,6 +429,12 @@ async function startQuiz(){
 // ============ QUESTION ============
 function showQuestion(){
   if(current >= questions.length){ endQuiz(); return; }
+  
+  // إزالة أي تركيز متبقي من الأزرار السابقة (حل مشكلة اللون الأصفر العالق)
+  if(document.activeElement && document.activeElement instanceof HTMLElement){
+    document.activeElement.blur();
+  }
+  
   const q = questions[current];
   answered = false;
   document.getElementById('qCounter').textContent = `السؤال ${current+1} / ${questions.length}`;
@@ -427,6 +448,7 @@ function showQuestion(){
     const btn = document.createElement('button');
     btn.className = 'option-btn';
     btn.textContent = opt;
+    btn.setAttribute('data-opt-index', i);
     btn.onclick = () => selectAnswer(i, q.answer);
     grid.appendChild(btn);
   });
@@ -485,6 +507,12 @@ function selectAnswer(idx, correctIdx){
   if(answered) return;
   answered = true;
   clearInterval(timerInterval);
+  
+  // إزالة التركيز عن الزر الذي تم النقر عليه فوراً (يمنع بقاء التظليل)
+  if(document.activeElement && document.activeElement instanceof HTMLElement){
+    document.activeElement.blur();
+  }
+  
   const btns = document.querySelectorAll('.option-btn');
   btns.forEach(b=>b.disabled=true);
   if(idx === correctIdx){
@@ -597,9 +625,15 @@ function showScreen(id){
 }
 
 function resetQuiz(){
+  // إعادة تعيين كامل وإزالة أي تأثيرات عالقة
+  if(timerInterval) clearInterval(timerInterval);
   showScreen('startScreen');
   document.getElementById('startBtn').disabled=false;
   document.getElementById('startError').style.display='none';
+  // إزالة التركيز من أي عنصر
+  if(document.activeElement && document.activeElement instanceof HTMLElement){
+    document.activeElement.blur();
+  }
 }
 </script>
 </body>
